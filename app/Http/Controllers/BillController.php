@@ -16,9 +16,8 @@ class BillController extends Controller
      */
     public function index(){
 
-
-        $billing = Billing::all();
-        BillingJob::dispatch($billing)->onQueue('billing');
+        BillingJob::dispatch()->onQueue('billing');
     }
+
 
 }
