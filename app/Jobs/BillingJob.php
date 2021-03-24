@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Models\Billing;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -38,23 +37,18 @@ class BillingJob implements ShouldQueue
      */
     public function handle()
     {
-        // notBilled is a scope in the Billing model
         $billing_model = Billing::notBilled();
-
-        // gets a collection of the billing model
         $billing_model->chunkById(40, function($users) use($billing_model){
-            // loops through each of the chunk which is a array of 40 records
+            $requestBody = [];
             foreach($users as $user){
-
                 $requestBody[] = $this->add_billing_to_request($user);
-                // call the thirdParty api
-                // THIS IS A MOCK OF THE API CALL
                 $this->billUser($requestBody);
-                $this->update_billed_user($billing_model,$requestBody);
+                $this->update_billed_user($user);
             }
         });
 
     }
+
 
     private function billUser(array $requestBody)
     {
@@ -63,22 +57,18 @@ class BillingJob implements ShouldQueue
 
     private function add_billing_to_request($user): array
     {
-        $request  = [];
-        foreach ($user as $bill_user){
-            $request[]  =  [
-                'id'=>$bill_user->id,
-                'username' => $bill_user->username,
-                'amount_to_bill' => $bill_user->amount_to_bill
-            ];
-        }
-        return $request;
+        return  [
+            'id'=>$user->id,
+            'username' => $user->username,
+            'amount_to_bill' => $user->amount_to_bill
+        ];
 
     }
 
-    private function update_billed_user($billed_user,$request_body){
-        $billed_user->whereIn('id',$request_body)->update([
-                    'billed' => 1,
-                    'bill_date' => Carbon::now()
-             ]);
+    private function update_billed_user($billed_user){
+        $billed_user->update([
+            'billed' => 1,
+            'bill_date' => Carbon::now()
+        ]);
     }
 }
