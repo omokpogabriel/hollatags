@@ -7,6 +7,7 @@
 <h2 style="color:#4d648d;">Installation</h2>
     - Clone this git repository <br/>
     - run php artisan composer install <br/>
+    - run php artisan key:generate<br/>
 - setup your .env file <br/>
        &emsp; - setup your database <br/>
        &emsp; - change the QUEUE_CONNECTION to your desire (I used database)<br/>
