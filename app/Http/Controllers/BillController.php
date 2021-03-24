@@ -17,7 +17,7 @@ class BillController extends Controller
     public function index(){
 
         BillingJob::dispatch()->onQueue('billing');
+        return response("Job has been sent to queue");
     }
-
 
 }
